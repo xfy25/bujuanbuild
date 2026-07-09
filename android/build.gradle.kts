@@ -9,6 +9,7 @@ subprojects {
         extensions.findByName("android")?.let {
             if (it is com.android.build.gradle.LibraryExtension) {
                 it.defaultConfig.minSdk = 21
+                it.compileSdk = 36
             }
         }
     }
