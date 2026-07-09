@@ -4,7 +4,15 @@ allprojects {
         mavenCentral()
     }
 }
-
+subprojects {
+    afterEvaluate {
+        extensions.findByName("android")?.let {
+            if (it is com.android.build.gradle.LibraryExtension) {
+                it.defaultConfig.minSdk = 21
+            }
+        }
+    }
+}
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
         .dir("../../build")
