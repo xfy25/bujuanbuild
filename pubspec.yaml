@@ -67,7 +67,6 @@ dependencies:
   image_picker: ^0.8.9
   flutter_displaymode: ^0.6.0
   slide_countdown: ^0.6.0
-  permission_handler: ^10.2.0
   hive_flutter: ^1.1.0
   flutter_zoom_drawer: ^3.1.1
   window_manager: ^0.3.4
