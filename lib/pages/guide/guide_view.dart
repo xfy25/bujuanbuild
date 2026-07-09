@@ -8,7 +8,7 @@ import 'package:bujuan/routes/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
-import 'package:notification_permissions/notification_permissions.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:math' as math;
 
 
@@ -51,24 +51,29 @@ class _GuideViewState extends State<GuideView> with WidgetsBindingObserver {
       BottomData('为了更好的为您服务', '请授予通知权限', onCancel: () {
         AutoRouter.of(context).replaceNamed(Routes.home);
       }, onOk: () async {
-        //开始获取通知权限
-        NotificationPermissions.getNotificationPermissionStatus().then((value) {
-          if (value == PermissionStatus.denied || value == PermissionStatus.unknown) {
-            NotificationPermissions.requestNotificationPermissions(openSettings: value == PermissionStatus.denied);
-            openSetting = true;
-          } else {
-            AutoRouter.of(context).replaceNamed(Routes.home);
-          }
-        });
-      }, cancelTitle: '不授权', okTitle: '授权'),
+  		var status = await Permission.notification.status;
+
+  		if (status.isDenied) {
+   		await Permission.notification.request();
+    		openSetting = true;
+  	      } else if (status.isGranted) {
+    		AutoRouter.of(context).replaceNamed(Routes.home);
+	      } else {
+    		await Permission.notification.request();
+    		openSetting = true;
+  	      }
+	    },
+	    cancelTitle: '不授权', 
+	    okTitle: '授权',
+	  ),
     ];
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && openSetting) {
-      NotificationPermissions.getNotificationPermissionStatus().then((value) {
-        if (value == PermissionStatus.denied || value == PermissionStatus.unknown) {
+      Permission.notification.status.then((status) {
+        if (status.isDenied) {
           WidgetUtil.showToast('您未开启通知权限哦');
         } else {
           if (mounted) AutoRouter.of(context).replaceNamed(Routes.home);
