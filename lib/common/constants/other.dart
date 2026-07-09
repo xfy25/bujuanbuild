@@ -15,7 +15,7 @@ import 'package:lottie/lottie.dart';
 import 'package:palette_generator/palette_generator.dart';
 
 import '../netease_api/src/api/play/bean.dart';
-import 'enmu.dart';
+import 'enmu.dart' as app_enum;
 import 'images.dart';
 
 class OtherUtils {
@@ -66,7 +66,7 @@ class OtherUtils {
         duration: Duration(milliseconds: e.dt ?? 0),
         artUri: Uri.parse('${e.al?.picUrl ?? ''}?param=500y500'),
         extras: {
-          'type': MediaType.playlist.name,
+          'type': app_enum.MediaType.playlist.name,
           'image': e.al?.picUrl ?? '',
           'artist': (e.ar ?? []).map((e) => jsonEncode(e.toJson())).toList().join(' / '),
           'album': jsonEncode(e.al?.toJson()),
