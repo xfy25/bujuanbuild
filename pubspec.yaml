@@ -1,5 +1,6 @@
-name: bujuan_music
-description: "A new Flutter project."
+name: bujuan
+description: A new Flutter project.
+
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -11,15 +12,14 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # build by specifying --build-name and --build-number, respectively.
 # In Android, build-name is used as versionName while build-number used as versionCode.
 # Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 2.0.4+25
 
 environment:
-  sdk: '>=3.10.0 <4.0.0'
+  sdk: ">=3.0.0"
+  flutter: ">=3.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -31,53 +31,75 @@ dependencies:
   flutter:
     sdk: flutter
 
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  flutter_riverpod: ^3.0.3
-  go_router: ^17.0.1
-  flutter_screenutil: ^5.9.3
-  riverpod_annotation: ^3.0.3
-  bujuan_music_api:
-   git:
-    url: https://github.com/Zhenghao-Wen/bujuan_music_api.git
-    ref: login_test
-  path_provider: ^2.1.5
-  cached_network_image: ^3.4.1
-  hugeicons_pro: ^0.0.2
-  get_it: ^9.2.0
-  just_audio: ^0.10.5
-  audio_service: ^0.18.18
-  audio_session: ^0.2.2
-  pinput: ^6.0.1
-  window_manager: ^0.5.0
-  nb_utils: ^7.1.8
-  flutter_lyric: ^3.0.2
+  get: ^4.6.5
+  encrypt: ^5.0.1
+  path_provider: ^2.0.15
+  flutter_screenutil: ^5.9.0
+  extended_image: ^8.2.0
+  palette_generator: ^0.3.3+3
+  just_audio: ^0.9.36
+  audio_service: ^0.18.12
+  get_it: ^7.6.0
+  dio: ^5.2.1+1
   qr_flutter: ^4.1.0
-#  image_pixels: ^4.0.2
-  flutter_displaymode: ^0.7.0
-#  dynamic_color: ^1.8.1
-#  media_kit: ^1.2.6 # Primary package.
-#  media_kit_libs_audio: ^1.0.7 # Native audio dependencies.
+  date_format: ^2.0.7
+  pretty_dio_logger: ^1.3.1
+  dio_cookie_manager: ^3.1.0
+  pointycastle: ^3.7.3
+  json_annotation: ^4.8.0
+  flutter_tabler_icons: ^1.1.2
+  package_info_plus: ^4.0.2
+  url_launcher: ^6.1.11
+  auto_route: ^5.0.4
+  flutter_svg: ^2.0.7
+  fluttertoast: ^8.2.2
+  cached_network_image: ^3.3.0
+  rive: ^0.11.3
+  lottie: ^2.4.0
+  pull_to_refresh: ^2.0.0
+  notification_permissions: ^0.6.1
+  video_player: ^2.6.1
+  audio_video_progress_bar: ^1.0.1
+  adaptive_dialog: ^1.9.0-0
+  image_picker: ^0.8.9
+  flutter_displaymode: ^0.6.0
+  slide_countdown: ^0.6.0
+  permission_handler: ^10.2.0
+  hive_flutter: ^1.1.0
+  flutter_zoom_drawer: ^3.1.1
+  window_manager: ^0.3.4
+  android_intent_plus: ^4.0.1
+  flutter_riverpod: ^2.4.10
+  go_router: ^13.2.0
+  riverpod_annotation: ^2.3.4
+  animated_background: ^2.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  auto_route_generator: 5.0.3
+  build_runner: ^2.4.8
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
-  build_runner: ^2.4.0
-  json_serializable: ^6.7.0
-  custom_lint:
-  riverpod_generator: ^3.0.3
-  riverpod_lint: ^3.0.3
+  flutter_lints: ^2.0.0
+  ffigen: ^8.0.2
+  custom_lint: ^0.6.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
+#dependency_overrides:
+#  sky_engine:
+#    path: ../engine/src/out/host_debug_unopt/gen/dart-pkg/sky_engine
+#  smooth:
+#    path: plugins/flutter_smooth/packages/smooth
 # The following section is specific to Flutter packages.
 flutter:
 
@@ -85,30 +107,33 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-  generate: true
 
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
-  # assets:
-  #   - images/a_dot_burr.jpeg
+    - assets/lottie/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/to/resolution-aware-images
+  # https://flutter.dev/assets-and-images/#resolution-aware
 
   # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/to/asset-from-package
+  # https://flutter.dev/assets-and-images/#from-packages
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  #  fonts:
+  #    - family: iconfont
+  #      fonts:
+  #        - asset: assets/font/iconfont.ttf
+  #    - family: tabler-icons
+  #      fonts:
+  #        - asset: assets/font/tabler.ttf
+  #          style: normal
+  #          weight: 600
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
@@ -118,4 +143,4 @@ flutter:
   #         weight: 700
   #
   # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
+  # see https://flutter.dev/custom-fonts/#from-packages

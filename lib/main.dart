@@ -1,64 +1,184 @@
-import 'dart:io';
 import 'package:audio_service/audio_service.dart';
-import 'package:bujuan_music/common/local_proxy_service.dart';
-import 'package:bujuan_music/common/values/app_theme.dart';
-import 'package:bujuan_music/pages/main/provider.dart';
-import 'package:bujuan_music/router/router.dart';
-import 'package:bujuan_music/utils/adaptive_screen_utils.dart';
-import 'package:bujuan_music/widgets/we_slider/weslide_controller.dart';
-import 'package:bujuan_music_api/bujuan_music_api.dart';
+import 'package:auto_route/auto_route.dart';
+
+import 'package:bujuan/common/bujuan_audio_handler.dart';
+import 'package:bujuan/common/constants/other.dart';
+import 'package:bujuan/common/constants/platform_utils.dart';
+import 'package:bujuan/common/netease_api/netease_music_api.dart';
+import 'package:bujuan/pages/album/controller.dart';
+import 'package:bujuan/pages/home/home_binding.dart';
+import 'package:bujuan/pages/index/cound_controller.dart';
+import 'package:bujuan/pages/index/index_controller.dart';
+import 'package:bujuan/pages/play_list/playlist_controller.dart';
+import 'package:bujuan/pages/playlist_manager/playlist_manager_controller.dart';
+import 'package:bujuan/pages/user/user_controller.dart';
+import 'package:bujuan/routes/router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-// import 'package:media_kit/media_kit.dart';
-import 'package:nb_utils/nb_utils.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // 添加导入
+import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'common/bujuan_music_handler.dart';
+import 'common/constants/colors.dart';
 
-void main() async {
+main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  LocalProxyService().start();
-  if (Platform.isAndroid) {
-    await FlutterDisplayMode.setHighRefreshRate();
+  bool land = PlatformUtils.isMacOS || PlatformUtils.isWindows || OtherUtils.isPad();
+  final getIt = GetIt.instance;
+  await _initAudioServer(getIt);
+  final rootRouter = getIt<RootRouter>();
+  if (PlatformUtils.isAndroid) {
+    // await FlutterDisplayMode.setHighRefreshRate();
+    // SystemChrome.setEnabledSystemUIMode(
+    //   SystemUiMode.edgeToEdge,
+    // );
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      // 沉浸式状态栏（仅安卓）
+      statusBarColor: Colors.transparent,
+      // 沉浸式导航指示器
+      systemNavigationBarColor: Colors.transparent,
+    ));
   }
-  GetIt getIt = GetIt.instance;
-
-  await initMedia();
-  await initialize();
-  
-  // 启动时加载手动 cookie
-  await _loadManualCookie();
-
-  getIt.registerSingleton<WeSlideController>(
-    WeSlideController(initial: true),
-    instanceName: 'footer',
-  );
-  getIt.registerSingleton<WeSlideController>(WeSlideController(), instanceName: 'panel');
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  runApp(ProviderScope(child: MyApp()));
+  //如果满足横屏条件，强制屏幕为横屏
+  if (land) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+  }
+  //外部
+  // final rootNavigatorKey = GlobalKey<NavigatorState>();
+  // final shellNavigatorKey = GlobalKey<NavigatorState>();
+  // final router = GoRouter(
+  //   navigatorKey: rootNavigatorKey,
+  //   routes: [
+  //     ShellRoute(navigatorKey: shellNavigatorKey, builder: (BuildContext context, GoRouterState state, Widget child) => Outside(child: child), routes: [
+  //       GoRoute(path: '/', builder: (c, s) => const HomePage(), routes: [
+  //         GoRoute(path: 'playlist', builder: (c, s) => PlayList(s.extra! as Play)),
+  //       ]),
+  //       GoRoute(path: '/user', builder: (c, s) => const User()),
+  //       GoRoute(path: '/login', builder: (c, s) => const LoginViewPage()),
+  //     ])
+  //   ],
+  // );
+  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge).then((value) => runApp(ProviderScope(
+  //     child: ScreenUtilInit(
+  //         designSize: const Size(750, 1334),
+  //         minTextAdapt: true,
+  //         splitScreenMode: true,
+  //         builder: (context, child) {
+  //           return MaterialApp.router(
+  //             // showPerformanceOverlay: true,
+  //             theme: AppTheme.light,
+  //             routerConfig: router,
+  //           );
+  //         }))));
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge).then((value) => runApp(ScreenUtilInit(
+        designSize: !land ? const Size(750, 1334) : const Size(2339, 1080),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (BuildContext context, Widget? child) {
+          HomeBinding().dependencies();
+          return GetMaterialApp.router(
+            title: "Bujuan",
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            // showPerformanceOverlay: true,
+            // checkerboardOffscreenLayers: true,
+            // checkerboardRasterCacheImages: true,
+            themeMode: ThemeMode.system,
+            routerDelegate: rootRouter.delegate(navigatorObservers: () => [MyObserver()]),
+            routeInformationParser: rootRouter.defaultRouteParser(),
+            debugShowCheckedModeBanner: false,
+            builder: (_, router) => MediaQuery(data: MediaQuery.of(_).copyWith(textScaleFactor: 1.0), child: router!),
+          );
+        },
+      )));
 }
 
-Future<void> _loadManualCookie() async {
-  final prefs = await SharedPreferences.getInstance();
-  final cookie = prefs.getString('manual_cookie');
-  if (cookie != null && cookie.isNotEmpty) {
-    BujuanMusicManager().setCookie(cookie);
-    debugPrint('Loaded manual cookie from storage');
+class MyObserver extends AutoRouterObserver {
+  _clearOrPutController(String name, {bool del = false}) {
+    if (name.isEmpty) return;
+    switch (name) {
+      case 'AlbumView':
+        del ? Get.delete<CloudController>() : Get.lazyPut<CloudController>(() => CloudController());
+        break;
+      case 'MainView':
+        del ? Get.delete<IndexController>() : Get.lazyPut<IndexController>(() => IndexController());
+        break;
+      case 'UserView':
+        del ? Get.delete<UserController>() : Get.lazyPut<UserController>(() => UserController());
+        break;
+      case 'PlayListView':
+        del ? Get.delete<PlayListController>() : Get.lazyPut<PlayListController>(() => PlayListController());
+        break;
+      case 'AlbumDetails':
+        del ? Get.delete<AlbumController>() : Get.lazyPut<AlbumController>(() => AlbumController());
+        break;
+      case 'PlaylistManagerView':
+        del ? Get.delete<PlaylistManager>() : Get.lazyPut<PlaylistManager>(() => PlaylistManager());
+        break;
+    }
   }
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    super.didPush(route, previousRoute);
+    _clearOrPutController(route.settings.name ?? '');
+    print('New route pushed: ${route.settings.name}');
+  }
+
+  @override
+  void didRemove(Route route, Route? previousRoute) {
+    // TODO: implement didRemove
+    super.didRemove(route, previousRoute);
+    _clearOrPutController(route.settings.name ?? '', del: true);
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    // TODO: implement didPop
+    super.didPop(route, previousRoute);
+    _clearOrPutController(route.settings.name ?? '', del: true);
+  }
+
+
+  // only override to observer tab routes
+  @override
+  void didInitTabRoute(TabPageRoute route, TabPageRoute? previousRoute) {}
+
+  @override
+  void didChangeTabRoute(TabPageRoute route, TabPageRoute previousRoute) {}
 }
 
-Future<void> initWindow() async {
-  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+Future<void> _initAudioServer(getIt) async {
+  getIt.registerSingleton<RootRouter>(RootRouter());
+  getIt.registerSingleton<AudioPlayer>(AudioPlayer());
+  getIt.registerSingleton<ZoomDrawerController>(ZoomDrawerController());
+  await Hive.initFlutter('BuJuan');
+  getIt.registerSingleton<Box>(await Hive.openBox('cache'));
+  await NeteaseMusicApi.init(debug: false);
+  getIt.registerSingleton<BujuanAudioHandler>(await AudioService.init<BujuanAudioHandler>(
+    builder: () => BujuanAudioHandler(),
+    config: const AudioServiceConfig(
+      androidStopForegroundOnPause: false,
+      androidNotificationChannelId: 'com.sixbugs.bujuan.channel.audio',
+      androidNotificationChannelName: 'Music playback',
+      androidNotificationIcon: 'drawable/audio_service_icon',
+    ),
+  ));
+}
+
+Future<void> _initWindowManager() async {
+  if (PlatformUtils.isWindows || PlatformUtils.isMacOS) {
     await windowManager.ensureInitialized();
-    WindowOptions windowOptions = WindowOptions(
-      size: Size(1024, 650),
-      maximumSize: Size(1024, 800),
+    WindowOptions windowOptions = const WindowOptions(
+      size: Size(1080, 720),
+      minimumSize: Size(1080, 720),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
@@ -68,54 +188,5 @@ Future<void> initWindow() async {
       await windowManager.show();
       await windowManager.focus();
     });
-  }
-}
-
-Future<void> initMedia() async {
-  final appDocDir = await getApplicationDocumentsDirectory();
-  await BujuanMusicManager().init(cookiePath: '${appDocDir.path}/cookies', debug: false);
-  await AudioService.init(
-    builder: () => BujuanMusicHandler(),
-    config: AudioServiceConfig(
-      androidNotificationChannelId: 'com.sixbugs.bujuan.channel.audio',
-      androidNotificationChannelName: 'Music playback',
-    ),
-  );
-}
-
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(routerProvider);
-    Size size = Size(375, 812);
-    if (medium(context) || expanded(context)) {
-      size = Size(1024, 700);
-    }
-
-    return ScreenUtilInit(
-      designSize: size,
-      builder: (_, __) => Consumer(
-        builder: (_, ref, __) {
-          final themeMode = ref.watch(themeModeProvider);
-          return AnnotatedRegion(
-            value: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              systemNavigationBarColor: Colors.transparent,
-              systemStatusBarContrastEnforced: false,
-              systemNavigationBarContrastEnforced: false,
-            ),
-            child: MaterialApp.router(
-              title: 'Bujuan',
-              themeMode: themeMode,
-              darkTheme: AppTheme.dark,
-              theme: AppTheme.light,
-              routerConfig: router,
-            ),
-          );
-        },
-      ),
-    );
   }
 }

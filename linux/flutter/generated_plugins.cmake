@@ -3,8 +3,10 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  nb_utils
-  screen_retriever_linux
+  dynamic_color
+  file_selector_linux
+  screen_retriever
+  url_launcher_linux
   window_manager
 )
 
