@@ -2,8 +2,9 @@ name: Build
 
 on:
    push:
-     branches: [bujuan_2]
-  workflow_dispatch:
+     branches:
+       - bujuan_2
+   workflow_dispatch:
 
 jobs:
   android:
