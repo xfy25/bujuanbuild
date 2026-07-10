@@ -43,6 +43,10 @@ jobs:
           echo "KEY_ALIAS=${{ secrets.ANDROID_KEY_ALIAS }}" >> $GITHUB_ENV
           echo "KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }}" >> $GITHUB_ENV
 
+      - name: Remove Zone.Identifier files
+        run: |
+          find . -name "*:Zone.Identifier" -delete
+
       - name: Build APKs
         run: flutter build apk --release
         env:

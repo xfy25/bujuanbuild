@@ -3,6 +3,7 @@
 *.log
 *.pyc
 *.swp
+*:Zone.Identifier
 .DS_Store
 .atom/
 .build/
