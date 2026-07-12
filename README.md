@@ -2,11 +2,8 @@
 <img src="macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png" alt="app_icon_256" style="zoom: 50%;"/>
 </p>
 <h1 align="center">bujuan</h1>
-<p align="center">一个支持Android、iOS、MacOS、Windows、Linux的三方网易云播放器。</p>
+<p align="center">一个支持Android、iOS、MacOS、Windows、Linux的三方网易云播放器。##勉强跑完新flutter的编译流程，但无法登录，图像加载有异常，播放正常。</p>
 
-#### MacOS (适配中)	
-
-![](images/957.png)
 
 
 
@@ -47,9 +44,6 @@
 ### 开发进度
 
 - ✅ Android & IOS 基本已经完善剩余Bug修复和新增功能
-- ☑️ MacOS 正在适配中（届时和横屏模式同时推出）
-- ☑️Windows
-- ☑️Linux
 
 
 
